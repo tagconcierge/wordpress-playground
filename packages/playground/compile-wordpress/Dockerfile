@@ -130,7 +130,7 @@ RUN cd wordpress && \
 
 # === Install WooCommerce ===
 RUN cd wordpress/wp-content/plugins && \
-    wget https://downloads.wordpress.org/plugin/woocommerce.8.2.1.zip -O out && \
+    curl -L https://downloads.wordpress.org/plugin/woocommerce.8.2.1.zip > out && \
     unzip out && \
     rm out && \
     cd ../../ && \
