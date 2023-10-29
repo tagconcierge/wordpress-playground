@@ -139,12 +139,11 @@ RUN cd wordpress/wp-content/mu-plugins && \
       echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
     done;
 
-RUN cd wordpress && \
-    cp -R wp-content/mu-plugins/woocommerce wp-content/plugins/woocommerce && \
+RUN cd wordpress && (../wp-cli.phar --allow-root plugin is-active woocommerce || \
+    (cp -R wp-content/mu-plugins/woocommerce wp-content/plugins/woocommerce && \
     ../wp-cli.phar --allow-root plugin activate woocommerce && \
     ../wp-cli.phar --allow-root import wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create && \
-    ../wp-cli.phar --allow-root plugin deactivate woocommerce && \
-    rm -Rf wp-content/plugins/woocommerce
+    rm -Rf wp-content/plugins/woocommerce))
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
