@@ -146,7 +146,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root import wp-content/mu-plugins/woo
 # produces code compatible with PHP 8+, but the reverse
 # isn't true.
 RUN cd wordpress && \
-    for phpfile in $(find ./ -type f -name '*.php' -not -path '*wordpress-importer*' ); do \
+    for phpfile in $(find ./ -type f -name '*.php' -not -path '*wordpress-importer*' -not -path '*woocommerce*' ); do \
     # Remove whitespace from PHP files
     php -w $phpfile > $phpfile.small && \
     # remove set_time_limit function calls as they invoke the
