@@ -47,12 +47,7 @@
 			"executor": "nx:run-commands",
 			"options": {
 				"commands": [
-					"node packages/playground/compile-wordpress/build.js --wp-version=latest-minus-3 --output-js=packages/playground/remote/src/wordpress --output-assets=packages/playground/remote/public",
-					"node packages/playground/compile-wordpress/build.js --wp-version=latest-minus-2 --output-js=packages/playground/remote/src/wordpress --output-assets=packages/playground/remote/public",
-					"node packages/playground/compile-wordpress/build.js --wp-version=latest-minus-1 --output-js=packages/playground/remote/src/wordpress --output-assets=packages/playground/remote/public",
-					"node packages/playground/compile-wordpress/build.js --wp-version=latest --output-js=packages/playground/remote/src/wordpress --output-assets=packages/playground/remote/public",
-					"node packages/playground/compile-wordpress/build.js --wp-version=beta --output-js=packages/playground/remote/src/wordpress --output-assets=packages/playground/remote/public",
-					"node packages/playground/compile-wordpress/build.js --wp-version=nightly --output-js=packages/playground/remote/src/wordpress --output-assets=packages/playground/remote/public"
+					"node packages/playground/compile-wordpress/build.js --wp-version=latest --output-js=packages/playground/remote/src/wordpress --output-assets=packages/playground/remote/public"
 				],
 				"parallel": false
 			}
