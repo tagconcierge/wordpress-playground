@@ -138,7 +138,7 @@ RUN cd wordpress/wp-content/mu-plugins && \
       # Create entry file in mu-plugins root
       echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
     done;
-RUN ./wp-cli.phar --allow-root import wordpress/wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create
+RUN cd wordpress && ../wp-cli.phar --allow-root import wordpress/wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
