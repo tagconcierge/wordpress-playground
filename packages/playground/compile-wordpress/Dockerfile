@@ -33,7 +33,7 @@ RUN git clone https://github.com/WordPress/sqlite-database-integration.git \
 
 # Separate WordPress static files
 RUN cp -r wordpress wordpress-static && \
-    cd wordpress-static && \ 
+    cd wordpress-static && \
     find ./ -name '*.php' -delete && \
     # Keep only the static files inside the directories like wp-admin or wp-content:
     find . -maxdepth 1 -type f -delete && \
@@ -128,6 +128,15 @@ COPY ./build-assets/export-wxz.php /root/
 RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
+# === Install WooCommerce ===
+RUN cd wordpress/wp-content/plugins && \
+    wget https://downloads.wordpress.org/plugin/woocommerce.8.2.1.zip -O out && \
+    unzip out && \
+    rm out && \
+    cd ../../ && \
+    ../wp-cli.phar --allow-root plugin activate woocommerce && \
+    ../wp-cli.phar --allow-root import wp-content/plugins/woocommerce/sample-data/sample_products.xml --authors=create
+
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
 # produces code compatible with PHP 8+, but the reverse
@@ -153,7 +162,7 @@ RUN cd wordpress && \
     sed "s/<?php/<?php define( 'CONCATENATE_SCRIPTS', false );/" wp-config.php > wp-config.php.new && \
     mv wp-config.php.new wp-config.php
 
-# Bundle the .data file using Emscripten 
+# Bundle the .data file using Emscripten
 RUN mv wordpress /wordpress && \
     /emsdk/upstream/emscripten/tools/file_packager.py \
     /root/output/wp.data \
