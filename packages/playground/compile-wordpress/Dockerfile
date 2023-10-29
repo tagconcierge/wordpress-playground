@@ -129,13 +129,16 @@ RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
 # === Install WooCommerce ===
-RUN cd wordpress/wp-content/plugins && \
-    curl -L https://downloads.wordpress.org/plugin/woocommerce.8.2.1.zip > out && \
-    unzip out && \
-    rm out && \
-    cd ../../ && \
-    ../wp-cli.phar --allow-root plugin activate woocommerce && \
-    ../wp-cli.phar --allow-root import wp-content/plugins/woocommerce/sample-data/sample_products.xml --authors=create
+RUN cd wordpress/wp-content/mu-plugins && \
+    # Install plugins
+    for plugin_name in woocommerce; do \
+      curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
+      unzip {$plugin_name}.zip && \
+      rm {$plugin_name}.zip && \
+      # Create entry file in mu-plugins root
+      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
+    done; \
+RUN ./wp-cli.phar --allow-root import wordpress/wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
