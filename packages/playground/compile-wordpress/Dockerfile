@@ -128,10 +128,10 @@ COPY ./build-assets/export-wxz.php /root/
 RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
-# === Install WooCommerce ===
+# === Install WooCommerce & Polylang ===
 RUN cd wordpress/wp-content/mu-plugins && \
     # Install plugins
-    for plugin_name in woocommerce; do \
+    for plugin_name in woocommerce polylang; do \
       curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
       unzip {$plugin_name}.zip && \
       rm {$plugin_name}.zip && \
@@ -149,7 +149,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analyt
 # === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
     # Install plugins
-    for plugin_name in gtm-ecommerce-woo-pro woocommerce-quick-view woocommerce-brands woocommerce-wishlists polylang-wc tc-ext-wishlists tc-ext-multilingual; do \
+    for plugin_name in gtm-ecommerce-woo-pro woocommerce-quick-view woocommerce-brands woocommerce-wishlists tc-ext-wishlists tc-ext-multilingual; do \
       curl -L https://assets.tagconcierge.com/wordpress-playground/dd871dbd-ccc9-498e-92c1-36b4193c0e8c/{$plugin_name}.zip -o {$plugin_name}.zip && \
       unzip {$plugin_name}.zip && \
       rm {$plugin_name}.zip && \
@@ -158,6 +158,7 @@ RUN cd wordpress/wp-content/mu-plugins && \
     done;
 
 RUN cd wordpress/wp-content/mu-plugins/gtm-ecommerce-woo-pro && sed -i 's/advanced/basic/g' src/Service/SettingsService.php
+RUN cd wordpress/wp-content/mu-plugins/gtm-ecommerce-woo-pro && curl -L https://assets.tagconcierge.com/wordpress-playground/dd871dbd-ccc9-498e-92c1-36b4193c0e8c/ExtensionService.php -o src/Service/ExtensionService.php
 
 RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_track_user_id 1
 RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_gtm_snippet_prevent_load yes-other
