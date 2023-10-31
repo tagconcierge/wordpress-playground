@@ -140,13 +140,29 @@ RUN cd wordpress/wp-content/mu-plugins && \
     done;
 
 RUN cd wordpress && ../wp-cli.phar --allow-root import wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update bacs --enabled=1 --user=admin
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cheque --enabled=1 --user=admin
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --enabled=1 --user=admin
+RUN cd wordpress && ../wp-cli.phar --allow-root wp option update woocommerce_custom_orders_table_enabled no
+RUN cd wordpress && ../wp-cli.phar --allow-root wp option update woocommerce_analytics_enabled no
+
+# === Install Google Tag Manager for WooCommerce PRO ===
+RUN cd wordpress/wp-content/mu-plugins && \
+    curl -L https://assets.tagconcierge.com/download/woocommerce/a0e348ba-d208-4855-baeb-a7794629aed8/gtm-ecommerce-woo-pro-1.11.0.zip -o gtm.zip && \
+    unzip gtm.zip && \
+    rm gtm.zip \
+    echo "<?php require_once __DIR__.'/gtm-ecommerce-woo-pro/gtm-ecommerce-woo-pro.php';" > gtm-ecommerce-woo-pro.php
+
+RUN cd wordpress && ../wp-cli.phar --allow-root wp option update gtm_ecommerce_woo_track_user_id 1
+RUN cd wordpress && ../wp-cli.phar --allow-root wp option update gtm_ecommerce_woo_gtm_snippet_prevent_load yes-other
+RUN cd wordpress && ../wp-cli.phar --allow-root wp option update gtm_ecommerce_woo_event_inspector_enabled yes-demo
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
 # produces code compatible with PHP 8+, but the reverse
 # isn't true.
 RUN cd wordpress && \
-    for phpfile in $(find ./ -type f -name '*.php' -not -path '*wordpress-importer*' -not -path '*woocommerce*' ); do \
+    for phpfile in $(find ./ -type f -name '*.php' -not -path '*wordpress-importer*' -not -path '*woocommerce*' -not -path '*gtm-ecommerce-woo*' ); do \
     # Remove whitespace from PHP files
     php -w $phpfile > $phpfile.small && \
     # remove set_time_limit function calls as they invoke the
