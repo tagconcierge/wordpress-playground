@@ -108,7 +108,8 @@ RUN mkdir wordpress/wp-content/mu-plugins
 
 # === Install WP-CLI ===
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod +x wp-cli.phar
+    chmod +x wp-cli.phar && \
+    ./wp-cli.phar --allow-root package install git@github.com:diggy/polylang-cli.git
 
 # === Install WordPress Importer ===
 COPY ./build-assets/import-wxz.patch /root/
@@ -139,12 +140,16 @@ RUN cd wordpress/wp-content/mu-plugins && \
       echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
     done;
 
+# === WooCommerce === #
 RUN cd wordpress && ../wp-cli.phar --allow-root import wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update bacs --enabled=1 --user=admin
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cheque --enabled=1 --user=admin
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --enabled=1 --user=admin
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom_orders_table_enabled no
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
+
+# === Polylang === #
+RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_EN
 
 # === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
@@ -157,12 +162,15 @@ RUN cd wordpress/wp-content/mu-plugins && \
       echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
     done;
 
+# === Google Tag Manager for WooCommerce PRO ===
 RUN cd wordpress/wp-content/mu-plugins/gtm-ecommerce-woo-pro && sed -i 's/advanced/basic/g' src/Service/SettingsService.php
 RUN cd wordpress/wp-content/mu-plugins/gtm-ecommerce-woo-pro && curl -L https://assets.tagconcierge.com/wordpress-playground/dd871dbd-ccc9-498e-92c1-36b4193c0e8c/ExtensionService.php -o src/Service/ExtensionService.php
-
 RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_track_user_id 1
 RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_gtm_snippet_prevent_load yes-other
 RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_event_inspector_enabled yes-demo
+
+# === WooCommerce Wishlists === #
+RUN cd wordpress/wp-content/mu-plugins/woocommerce-wishlists && sed -i 's/return in_array(/return true || in_array(/g'  woo-includes/class-wc-dependencies.php
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
