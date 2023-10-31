@@ -150,7 +150,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analyt
 RUN cd wordpress/wp-content/mu-plugins && \
     curl -L https://assets.tagconcierge.com/download/woocommerce/a0e348ba-d208-4855-baeb-a7794629aed8/gtm-ecommerce-woo-pro-1.11.0.zip -o gtm.zip && \
     unzip gtm.zip && \
-    rm gtm.zip \
+    rm gtm.zip && \
     echo "<?php require_once __DIR__.'/gtm-ecommerce-woo-pro/gtm-ecommerce-woo-pro.php';" > gtm-ecommerce-woo-pro.php
 
 RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_track_user_id 1
