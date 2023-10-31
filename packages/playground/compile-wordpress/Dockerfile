@@ -129,10 +129,10 @@ COPY ./build-assets/export-wxz.php /root/
 RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
-# === Install WooCommerce, Polylang ===
+# === Install Polylang ===
 RUN cd wordpress/wp-content/mu-plugins && \
     # Install plugins
-    for plugin_name in polylang woocommerce; do \
+    for plugin_name in polylang; do \
       curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
       unzip {$plugin_name}.zip && \
       rm {$plugin_name}.zip && \
@@ -145,6 +145,17 @@ RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
 RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
+
+# === Install WooCommerce ===
+RUN cd wordpress/wp-content/mu-plugins && \
+    # Install plugins
+    for plugin_name in woocommerce; do \
+      curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
+      unzip {$plugin_name}.zip && \
+      rm {$plugin_name}.zip && \
+      # Create entry file in mu-plugins root
+      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
+    done;
 
 # === WooCommerce === #
 RUN cd wordpress && ../wp-cli.phar --allow-root import wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create
