@@ -143,8 +143,8 @@ RUN cd wordpress && ../wp-cli.phar --allow-root import wp-content/mu-plugins/woo
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update bacs --enabled=1 --user=admin
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cheque --enabled=1 --user=admin
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --enabled=1 --user=admin
-RUN cd wordpress && ../wp-cli.phar --allow-root wp option update woocommerce_custom_orders_table_enabled no
-RUN cd wordpress && ../wp-cli.phar --allow-root wp option update woocommerce_analytics_enabled no
+RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom_orders_table_enabled no
+RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
 
 # === Install Google Tag Manager for WooCommerce PRO ===
 RUN cd wordpress/wp-content/mu-plugins && \
@@ -153,9 +153,9 @@ RUN cd wordpress/wp-content/mu-plugins && \
     rm gtm.zip \
     echo "<?php require_once __DIR__.'/gtm-ecommerce-woo-pro/gtm-ecommerce-woo-pro.php';" > gtm-ecommerce-woo-pro.php
 
-RUN cd wordpress && ../wp-cli.phar --allow-root wp option update gtm_ecommerce_woo_track_user_id 1
-RUN cd wordpress && ../wp-cli.phar --allow-root wp option update gtm_ecommerce_woo_gtm_snippet_prevent_load yes-other
-RUN cd wordpress && ../wp-cli.phar --allow-root wp option update gtm_ecommerce_woo_event_inspector_enabled yes-demo
+RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_track_user_id 1
+RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_gtm_snippet_prevent_load yes-other
+RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_event_inspector_enabled yes-demo
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
