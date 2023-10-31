@@ -150,8 +150,9 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analyt
 
 # === Polylang === #
 RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
+RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
 
 # === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
