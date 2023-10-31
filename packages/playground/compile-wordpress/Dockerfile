@@ -146,12 +146,18 @@ RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom_orders_table_enabled no
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
 
-# === Install Google Tag Manager for WooCommerce PRO ===
+# === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
-    curl -L https://assets.tagconcierge.com/download/woocommerce/a0e348ba-d208-4855-baeb-a7794629aed8/gtm-ecommerce-woo-pro-1.11.0.zip -o gtm.zip && \
-    unzip gtm.zip && \
-    rm gtm.zip && \
-    echo "<?php require_once __DIR__.'/gtm-ecommerce-woo-pro/gtm-ecommerce-woo-pro.php';" > gtm-ecommerce-woo-pro.php
+    # Install plugins
+    for plugin_name in gtm-ecommerce-woo-pro woocommerce-quick-view woocommerce-brands woocommerce-wishlists polylang-wc tc-ext-wishlists tc-ext-multilingual; do \
+      curl -L https://assets.tagconcierge.com/wordpress-playground/dd871dbd-ccc9-498e-92c1-36b4193c0e8c/{$plugin_name}.zip -o {$plugin_name}.zip && \
+      unzip {$plugin_name}.zip && \
+      rm {$plugin_name}.zip && \
+      # Create entry file in mu-plugins root
+      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
+    done;
+
+RUN cd wordpress/wp-content/mu-plugins/gtm-ecommerce-woo-pro && sed -i 's/advanced/basic/g' src/Service/SettingsService.php
 
 RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_track_user_id 1
 RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_gtm_snippet_prevent_load yes-other
