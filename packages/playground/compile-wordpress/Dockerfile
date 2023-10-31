@@ -109,7 +109,7 @@ RUN mkdir wordpress/wp-content/mu-plugins
 # === Install WP-CLI ===
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && \
-    ./wp-cli.phar --allow-root package install git@github.com:diggy/polylang-cli.git
+    ./wp-cli.phar --allow-root package install https://github.com/diggy/polylang-cli/archive/refs/tags/v1.0.0-alpha.1.zip
 
 # === Install WordPress Importer ===
 COPY ./build-assets/import-wxz.patch /root/
