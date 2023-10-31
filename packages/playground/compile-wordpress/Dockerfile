@@ -169,7 +169,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_
 # produces code compatible with PHP 8+, but the reverse
 # isn't true.
 RUN cd wordpress && \
-    for phpfile in $(find ./ -type f -name '*.php' -not -path '*wordpress-importer*' -not -path '*woocommerce*' -not -path '*gtm-ecommerce-woo*' ); do \
+    for phpfile in $(find ./ -type f -name '*.php' -not -path '*wordpress-importer*' -not -path '*woocommerce*' -not -path '*gtm-ecommerce-woo*' -not -path '*polylang*' -not -path '*tc-ext*' ); do \
     # Remove whitespace from PHP files
     php -w $phpfile > $phpfile.small && \
     # remove set_time_limit function calls as they invoke the
