@@ -149,7 +149,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
 
 # === Polylang === #
-RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_EN
+RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
 
 # === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
