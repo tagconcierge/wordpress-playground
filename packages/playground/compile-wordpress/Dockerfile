@@ -90,7 +90,7 @@ RUN cd wordpress && \
 FROM php:7.4-cli AS php
 WORKDIR /root/
 COPY --from=emscripten /root/wordpress ./wordpress
-RUN apt update && apt install unzip
+RUN apt update && apt install -y unzip libzip-dev zip && docker-php-ext-install zip
 
 # === Run WordPress Installer ===
 RUN ls -la && \
