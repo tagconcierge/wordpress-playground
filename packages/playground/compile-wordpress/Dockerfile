@@ -151,6 +151,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 1
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update first_activation 1691760498
 RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
+RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
 
 # === Install WooCommerce ===
 RUN cd wordpress/wp-content/mu-plugins && \
