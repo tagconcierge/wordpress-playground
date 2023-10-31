@@ -144,6 +144,12 @@ RUN cd wordpress/wp-content/mu-plugins && \
 RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 1
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update first_activation 1691760498
 RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
 
 # === Install WooCommerce ===
