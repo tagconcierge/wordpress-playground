@@ -90,7 +90,7 @@ RUN cd wordpress && \
 FROM php:7.4-cli AS php
 WORKDIR /root/
 COPY --from=emscripten /root/wordpress ./wordpress
-RUN apt update && apt install -y unzip libzip-dev zip && docker-php-ext-install zip
+RUN apt update && apt install -y unzip
 
 # === Run WordPress Installer ===
 RUN ls -la && \
@@ -108,8 +108,7 @@ RUN mkdir wordpress/wp-content/mu-plugins
 
 # === Install WP-CLI ===
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod +x wp-cli.phar && \
-    ./wp-cli.phar --allow-root package install https://github.com/tagconcierge/polylang-cli/archive/refs/heads/wpcli-2.9.0.zip
+    chmod +x wp-cli.phar
 
 # === Install WordPress Importer ===
 COPY ./build-assets/import-wxz.patch /root/
@@ -160,21 +159,21 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
 
 # === Polylang === #
-RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
-RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 0
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
+#RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
 
 # === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
     # Install plugins
-    for plugin_name in gtm-ecommerce-woo-pro woocommerce-quick-view woocommerce-brands woocommerce-wishlists polylang-wc tc-ext-wishlists tc-ext-multilingual; do \
+    for plugin_name in gtm-ecommerce-woo-pro woocommerce-quick-view woocommerce-brands woocommerce-wishlists tc-ext-wishlists tc-ext-multilingual; do \
       curl -L https://assets.tagconcierge.com/wordpress-playground/dd871dbd-ccc9-498e-92c1-36b4193c0e8c/{$plugin_name}.zip -o {$plugin_name}.zip && \
       unzip {$plugin_name}.zip && \
       rm {$plugin_name}.zip && \
