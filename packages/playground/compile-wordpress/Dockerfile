@@ -129,34 +129,21 @@ COPY ./build-assets/export-wxz.php /root/
 RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
-# === Install Polylang ===
+## === Install Polylang ===
+#RUN cd wordpress/wp-content/mu-plugins && \
+#    # Install plugins
+#    for plugin_name in polylang; do \
+#      curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
+#      unzip {$plugin_name}.zip && \
+#      rm {$plugin_name}.zip && \
+#      # Create entry file in mu-plugins root
+#      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
+#    done;
+
+# === Install WooCommerce, Polylang ===
 RUN cd wordpress/wp-content/mu-plugins && \
     # Install plugins
-    for plugin_name in polylang; do \
-      curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
-      unzip {$plugin_name}.zip && \
-      rm {$plugin_name}.zip && \
-      # Create entry file in mu-plugins root
-      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
-    done;
-
-# === Polylang === #
-RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update first_activation 1691760498
-RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
-RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
-
-# === Install WooCommerce ===
-RUN cd wordpress/wp-content/mu-plugins && \
-    # Install plugins
-    for plugin_name in woocommerce; do \
+    for plugin_name in woocommerce polylang; do \
       curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
       unzip {$plugin_name}.zip && \
       rm {$plugin_name}.zip && \
@@ -171,6 +158,18 @@ RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cheque
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --enabled=1 --user=admin
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom_orders_table_enabled no
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
+
+# === Polylang === #
+RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 1
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
+RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
+RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
 
 # === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
@@ -192,6 +191,10 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_
 
 # === WooCommerce Wishlists === #
 RUN cd wordpress/wp-content/mu-plugins/woocommerce-wishlists && sed -i 's/return in_array(/return true || in_array(/g'  woo-includes/class-wc-dependencies.php
+RUN mkdir -p wordpress/wp-content/plugins/woocommerce-wishlists/ && cp -R wordpress/wp-content/mu-plugins/woocommerce-wishlists/assets wordpress/wp-content/plugins/woocommerce-wishlists/assets
+
+# === Disable all plugins === #
+RUN cd wordpress && ../wp-cli.phar --allow-root plugin deactivate polylang
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
