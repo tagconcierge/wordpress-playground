@@ -129,29 +129,29 @@ COPY ./build-assets/export-wxz.php /root/
 RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
-# === Install Polylang ===
-RUN cd wordpress/wp-content/mu-plugins && \
-    # Install plugins
-    for plugin_name in polylang; do \
-      curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
-      unzip {$plugin_name}.zip && \
-      rm {$plugin_name}.zip && \
-      # Create entry file in mu-plugins root
-      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
-    done;
+## === Install Polylang ===
+#RUN cd wordpress/wp-content/mu-plugins && \
+#    # Install plugins
+#    for plugin_name in polylang; do \
+#      curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
+#      unzip {$plugin_name}.zip && \
+#      rm {$plugin_name}.zip && \
+#      # Create entry file in mu-plugins root
+#      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
+#    done;
 
-# === Polylang === #
-RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update first_activation 1691760498
-RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
-RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
+## === Polylang === #
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 1
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update first_activation 1691760498
+#RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
+#RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
 
 # === Install WooCommerce ===
 RUN cd wordpress/wp-content/mu-plugins && \
@@ -175,7 +175,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analyt
 # === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
     # Install plugins
-    for plugin_name in gtm-ecommerce-woo-pro woocommerce-quick-view woocommerce-brands woocommerce-wishlists tc-ext-wishlists tc-ext-multilingual; do \
+    for plugin_name in gtm-ecommerce-woo-pro woocommerce-quick-view woocommerce-brands woocommerce-wishlists polylang-wc tc-ext-wishlists tc-ext-multilingual; do \
       curl -L https://assets.tagconcierge.com/wordpress-playground/dd871dbd-ccc9-498e-92c1-36b4193c0e8c/{$plugin_name}.zip -o {$plugin_name}.zip && \
       unzip {$plugin_name}.zip && \
       rm {$plugin_name}.zip && \
