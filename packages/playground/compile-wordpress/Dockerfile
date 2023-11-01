@@ -166,7 +166,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
-RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 1
+RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 0
 RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
 RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
 RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
@@ -192,9 +192,6 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_
 # === WooCommerce Wishlists === #
 RUN cd wordpress/wp-content/mu-plugins/woocommerce-wishlists && sed -i 's/return in_array(/return true || in_array(/g'  woo-includes/class-wc-dependencies.php
 RUN mkdir -p wordpress/wp-content/plugins/woocommerce-wishlists/ && cp -R wordpress/wp-content/mu-plugins/woocommerce-wishlists/assets wordpress/wp-content/plugins/woocommerce-wishlists/assets
-
-# === Disable all plugins === #
-RUN cd wordpress && ../wp-cli.phar --allow-root plugin deactivate polylang
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
