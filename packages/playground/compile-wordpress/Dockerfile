@@ -128,6 +128,9 @@ COPY ./build-assets/export-wxz.php /root/
 RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
+# === Config === #
+RUN cd wordpress && ../wp-cli.phar --allow-root user update 1 --display_name="Tag Concierge"
+
 # === Install WooCommerce, Polylang ===
 RUN cd wordpress/wp-content/mu-plugins && \
     # Install plugins
@@ -141,9 +144,9 @@ RUN cd wordpress/wp-content/mu-plugins && \
 
 # === WooCommerce === #
 RUN cd wordpress && ../wp-cli.phar --allow-root import wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create
-RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update bacs --enabled=1 --user=admin
-RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cheque --enabled=1 --user=admin
-RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --enabled=1 --user=admin
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update bacs --enabled=1 --user=tagconcierge
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cheque --enabled=1 --user=tagconcierge
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --enabled=1 --user=tagconcierge
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom_orders_table_enabled no
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
 
