@@ -97,7 +97,7 @@ RUN ls -la && \
     cd wordpress && \
     nohup bash -c "php -S 127.0.0.1:8000&" && \
     sleep 6; \
-    http_response=$(curl -o ./debug.txt -s -w "%{http_code}\n" -XPOST http://127.0.0.1:8000/wp-admin/install.php\?step\=2 --data "language=en&prefix=wp_&weblog_title=My WordPress Website&user_name=admin&admin_password=password&admin_password2=password&Submit=Install WordPress&pw_weak=1&admin_email=admin@localhost.com") && \
+    http_response=$(curl -o ./debug.txt -s -w "%{http_code}\n" -XPOST http://127.0.0.1:8000/wp-admin/install.php\?step\=2 --data "language=en&prefix=wp_&weblog_title=Google Tag Manager for WooCommerce PRO - DEMO SITE&user_name=admin&admin_password=password&admin_password2=password&Submit=Install WordPress&pw_weak=1&admin_email=admin@localhost.com") && \
     if [ "$http_response" != "200" ]; then \
     cat debug.txt && \
     exit 'WordPress installation failed'; \
@@ -159,6 +159,7 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom
 RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
 
 # === Polylang === #
+RUN sed -i 's/check_admin_referer/#check_admin_referer/g' wordpress/wp-content/mu-plugins/polylang/modules/wizard/wizard.php
 #RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
 #RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
 #RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
