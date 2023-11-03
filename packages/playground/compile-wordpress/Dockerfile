@@ -97,7 +97,7 @@ RUN ls -la && \
     cd wordpress && \
     nohup bash -c "php -S 127.0.0.1:8000&" && \
     sleep 6; \
-    http_response=$(curl -o ./debug.txt -s -w "%{http_code}\n" -XPOST http://127.0.0.1:8000/wp-admin/install.php\?step\=2 --data "language=en&prefix=wp_&weblog_title=Google Tag Manager for WooCommerce PRO - DEMO SITE&user_name=admin&admin_password=password&admin_password2=password&Submit=Install WordPress&pw_weak=1&admin_email=admin@localhost.com") && \
+    http_response=$(curl -o ./debug.txt -s -w "%{http_code}\n" -XPOST http://127.0.0.1:8000/wp-admin/install.php\?step\=2 --data "language=en&prefix=wp_&weblog_title=Google Tag Manager for WooCommerce PRO - DEMO SITE&user_name=tagconcierge&admin_password=tagconcierge&admin_password2=tagconcierge&Submit=Install WordPress&pw_weak=1&admin_email=contact@tagconcierge.com") && \
     if [ "$http_response" != "200" ]; then \
     cat debug.txt && \
     exit 'WordPress installation failed'; \
@@ -128,17 +128,6 @@ COPY ./build-assets/export-wxz.php /root/
 RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
-## === Install Polylang ===
-#RUN cd wordpress/wp-content/mu-plugins && \
-#    # Install plugins
-#    for plugin_name in polylang; do \
-#      curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
-#      unzip {$plugin_name}.zip && \
-#      rm {$plugin_name}.zip && \
-#      # Create entry file in mu-plugins root
-#      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
-#    done;
-
 # === Install WooCommerce, Polylang ===
 RUN cd wordpress/wp-content/mu-plugins && \
     # Install plugins
@@ -160,16 +149,6 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analyt
 
 # === Polylang === #
 RUN sed -i 's/check_admin_referer/#check_admin_referer/g' wordpress/wp-content/mu-plugins/polylang/modules/wizard/wizard.php
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll lang create English en en_US
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update default_lang en
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update media_support 0
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update browser 0
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update rewrite 1
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update hide_default 1
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update force_lang 0
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll option update redirect_lang 0
-#RUN cd wordpress && ../wp-cli.phar --allow-root pll doctor translate
-#RUN cd wordpress && ../wp-cli.phar --allow-root option update pll_dismissed_notices '["wizard"]' --format=json
 
 # === Install GTM PRO & additional plugins ===
 RUN cd wordpress/wp-content/mu-plugins && \
@@ -191,7 +170,9 @@ RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_
 
 # === WooCommerce Wishlists === #
 RUN cd wordpress/wp-content/mu-plugins/woocommerce-wishlists && sed -i 's/return in_array(/return true || in_array(/g'  woo-includes/class-wc-dependencies.php
-RUN mkdir -p wordpress/wp-content/plugins/woocommerce-wishlists/ && cp -R wordpress/wp-content/mu-plugins/woocommerce-wishlists/assets wordpress/wp-content/plugins/woocommerce-wishlists/assets
+RUN mkdir -p wordpress/wp-content/plugins/woocommerce-wishlists/ &&  \
+    cp -R wordpress/wp-content/mu-plugins/woocommerce-wishlists/assets wordpress/wp-content/plugins/woocommerce-wishlists/assets && \
+    cp -R wordpress/wp-content/mu-plugins/woocommerce-wishlists/templates wordpress/wp-content/plugins/woocommerce-wishlists/templates
 
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
