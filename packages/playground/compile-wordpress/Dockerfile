@@ -130,6 +130,8 @@ RUN cd wordpress && \
 
 # === Config === #
 RUN cd wordpress && ../wp-cli.phar --allow-root user update 1 --display_name="Tag Concierge"
+RUN cd wordpress && ../wp-cli.phar --allow-root option add woocommerce_custom_orders_table_enabled no
+RUN cd wordpress && ../wp-cli.phar --allow-root option add woocommerce_analytics_enabled no
 
 # === Install WooCommerce, Polylang ===
 RUN cd wordpress/wp-content/mu-plugins && \
@@ -147,8 +149,6 @@ RUN cd wordpress && ../wp-cli.phar --allow-root import wp-content/mu-plugins/woo
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update bacs --enabled=1 --user=tagconcierge
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cheque --enabled=1 --user=tagconcierge
 RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --enabled=1 --user=tagconcierge
-RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_custom_orders_table_enabled no
-RUN cd wordpress && ../wp-cli.phar --allow-root option update woocommerce_analytics_enabled no
 
 # === Polylang === #
 RUN sed -i 's/check_admin_referer/#check_admin_referer/g' wordpress/wp-content/mu-plugins/polylang/modules/wizard/wizard.php
