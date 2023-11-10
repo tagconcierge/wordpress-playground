@@ -33,7 +33,7 @@ RUN git clone https://github.com/WordPress/sqlite-database-integration.git \
 
 # Separate WordPress static files
 RUN cp -r wordpress wordpress-static && \
-    cd wordpress-static && \ 
+    cd wordpress-static && \
     find ./ -name '*.php' -delete && \
     # Keep only the static files inside the directories like wp-admin or wp-content:
     find . -maxdepth 1 -type f -delete && \
@@ -90,14 +90,14 @@ RUN cd wordpress && \
 FROM php:7.4-cli AS php
 WORKDIR /root/
 COPY --from=emscripten /root/wordpress ./wordpress
-RUN apt update && apt install unzip
+RUN apt update && apt install -y unzip
 
 # === Run WordPress Installer ===
 RUN ls -la && \
     cd wordpress && \
     nohup bash -c "php -S 127.0.0.1:8000&" && \
     sleep 6; \
-    http_response=$(curl -o ./debug.txt -s -w "%{http_code}\n" -XPOST http://127.0.0.1:8000/wp-admin/install.php\?step\=2 --data "language=en&prefix=wp_&weblog_title=My WordPress Website&user_name=admin&admin_password=password&admin_password2=password&Submit=Install WordPress&pw_weak=1&admin_email=admin@localhost.com") && \
+    http_response=$(curl -o ./debug.txt -s -w "%{http_code}\n" -XPOST http://127.0.0.1:8000/wp-admin/install.php\?step\=2 --data "language=en&prefix=wp_&weblog_title=Google Tag Manager for WooCommerce PRO - DEMO SITE&user_name=tagconcierge&admin_password=tagconcierge&admin_password2=tagconcierge&Submit=Install WordPress&pw_weak=1&admin_email=contact@tagconcierge.com") && \
     if [ "$http_response" != "200" ]; then \
     cat debug.txt && \
     exit 'WordPress installation failed'; \
@@ -128,12 +128,61 @@ COPY ./build-assets/export-wxz.php /root/
 RUN cd wordpress && \
     cp /root/export-wxz.php wp-content/mu-plugins/export-wxz.php
 
+# === Config === #
+RUN cd wordpress && ../wp-cli.phar --allow-root user update 1 --display_name="Tag Concierge"
+RUN cd wordpress && ../wp-cli.phar --allow-root option add woocommerce_custom_orders_table_enabled no
+RUN cd wordpress && ../wp-cli.phar --allow-root option add woocommerce_analytics_enabled no
+
+# === Install WooCommerce, Polylang ===
+RUN cd wordpress/wp-content/mu-plugins && \
+    # Install plugins
+    for plugin_name in woocommerce polylang; do \
+      curl -L https://downloads.wordpress.org/plugin/{$plugin_name}.latest-stable.zip -o {$plugin_name}.zip && \
+      unzip {$plugin_name}.zip && \
+      rm {$plugin_name}.zip && \
+      # Create entry file in mu-plugins root
+      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
+    done;
+
+# === WooCommerce === #
+RUN cd wordpress && ../wp-cli.phar --allow-root import wp-content/mu-plugins/woocommerce/sample-data/sample_products.xml --authors=create
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update bacs --enabled=1 --user=tagconcierge
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cheque --enabled=1 --user=tagconcierge
+RUN cd wordpress && ../wp-cli.phar --allow-root wc payment_gateway update cod --enabled=1 --user=tagconcierge
+
+# === Polylang === #
+RUN sed -i 's/check_admin_referer/#check_admin_referer/g' wordpress/wp-content/mu-plugins/polylang/modules/wizard/wizard.php
+
+# === Install GTM PRO & additional plugins ===
+RUN cd wordpress/wp-content/mu-plugins && \
+    # Install plugins
+    for plugin_name in gtm-ecommerce-woo-pro woocommerce-quick-view woocommerce-brands woocommerce-wishlists tc-ext-wishlists tc-ext-multilingual; do \
+      curl -L https://assets.tagconcierge.com/wordpress-playground/dd871dbd-ccc9-498e-92c1-36b4193c0e8c/{$plugin_name}.zip -o {$plugin_name}.zip && \
+      unzip {$plugin_name}.zip && \
+      rm {$plugin_name}.zip && \
+      # Create entry file in mu-plugins root
+      echo "<?php require_once __DIR__.'/$plugin_name/$plugin_name.php';" > $plugin_name.php; \
+    done;
+
+# === Google Tag Manager for WooCommerce PRO ===
+RUN cd wordpress/wp-content/mu-plugins/gtm-ecommerce-woo-pro && sed -i 's/advanced/basic/g' src/Service/SettingsService.php
+RUN cd wordpress/wp-content/mu-plugins/gtm-ecommerce-woo-pro && curl -L https://assets.tagconcierge.com/wordpress-playground/dd871dbd-ccc9-498e-92c1-36b4193c0e8c/ExtensionService.php -o src/Service/ExtensionService.php
+RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_track_user_id 1
+RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_gtm_snippet_prevent_load yes-other
+RUN cd wordpress && ../wp-cli.phar --allow-root option update gtm_ecommerce_woo_event_inspector_enabled yes-demo
+
+# === WooCommerce Wishlists === #
+RUN cd wordpress/wp-content/mu-plugins/woocommerce-wishlists && sed -i 's/return in_array(/return true || in_array(/g'  woo-includes/class-wc-dependencies.php
+RUN mkdir -p wordpress/wp-content/plugins/woocommerce-wishlists/ &&  \
+    cp -R wordpress/wp-content/mu-plugins/woocommerce-wishlists/assets wordpress/wp-content/plugins/woocommerce-wishlists/assets && \
+    cp -R wordpress/wp-content/mu-plugins/woocommerce-wishlists/templates wordpress/wp-content/plugins/woocommerce-wishlists/templates
+
 # Strip whitespaces from PHP files.
 # PHP 7.4 is a safe choice here: `php -w` ran on 7.4
 # produces code compatible with PHP 8+, but the reverse
 # isn't true.
 RUN cd wordpress && \
-    for phpfile in $(find ./ -type f -name '*.php' -not -path '*wordpress-importer*' ); do \
+    for phpfile in $(find ./ -type f -name '*.php' -not -path '*wordpress-importer*' -not -path '*woocommerce*' -not -path '*gtm-ecommerce-woo*' -not -path '*polylang*' -not -path '*tc-ext*' ); do \
     # Remove whitespace from PHP files
     php -w $phpfile > $phpfile.small && \
     # remove set_time_limit function calls as they invoke the
@@ -153,7 +202,7 @@ RUN cd wordpress && \
     sed "s/<?php/<?php define( 'CONCATENATE_SCRIPTS', false );/" wp-config.php > wp-config.php.new && \
     mv wp-config.php.new wp-config.php
 
-# Bundle the .data file using Emscripten 
+# Bundle the .data file using Emscripten
 RUN mv wordpress /wordpress && \
     /emsdk/upstream/emscripten/tools/file_packager.py \
     /root/output/wp.data \

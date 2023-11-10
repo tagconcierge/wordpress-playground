@@ -3,17 +3,17 @@ name: 'Refresh WordPress assets'
 on:
     workflow_dispatch:
     # Every day at 8am UTC
-    schedule:
-        - cron: '0 8 * * *'
+#    schedule:
+#        - cron: '0 8 * * *'
 
 jobs:
     build_and_deploy:
         # Only run this workflow from the trunk branch and when it's triggered by dmsnell OR adamziel
-        if: >
-            github.ref == 'refs/heads/trunk' && (
-                github.actor == 'adamziel' ||
-                github.actor == 'dmsnell'
-            )
+#        if: >
+#            github.ref == 'refs/heads/trunk' && (
+#                github.actor == 'adamziel' ||
+#                github.actor == 'dmsnell'
+#            )
 
         runs-on: ubuntu-latest
         environment:
@@ -21,7 +21,7 @@ jobs:
         steps:
             - uses: actions/checkout@v3
               with:
-                  ref: ${{ github.event.pull_request.head.ref }}
+                  ref: ${{ github.ref }}
                   clean: true
                   fetch-depth: 0
                   persist-credentials: false
@@ -39,5 +39,5 @@ jobs:
                   git pull --rebase
                   # Push if the pull did not result in a conflict
                   if [ $? -eq 0 ]; then
-                      git push origin HEAD:trunk
+                      git push origin HEAD:${{ github.ref }}
                   fi;
